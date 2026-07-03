@@ -46,7 +46,7 @@ router.get("/api/search", asyncHandler(async (request, response) => {
     return;
   }
 
-  const html = await fetchHtml(`/?s=${encodeURIComponent(query)}`);
+  const html = await fetchHtml(`/?s=${encodeURIComponent(query)}&post_type=anime`);
   response.json({ ok: true, data: parseSearch(html), query });
 }));
 

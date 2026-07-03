@@ -164,7 +164,7 @@ curl http://localhost:3000/api/latest
 GET /api/search?q=keyword
 ```
 
-Mencari anime atau episode berdasarkan keyword.
+Mencari series anime berdasarkan keyword. Endpoint ini otomatis memakai `post_type=anime` saat request ke Otakudesu sehingga hasil episode tidak dikembalikan.
 
 Query params:
 
@@ -185,8 +185,9 @@ Array<{
   title: string;
   slug: string;
   url: string;
-  type: "anime" | "episode" | "unknown";
-  episode: number | null;
+  type: "anime";
+  image_url: string | null;
+  genres: LinkItem[];
   status: string | null;
   rating: string | null;
 }>

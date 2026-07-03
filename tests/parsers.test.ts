@@ -63,9 +63,11 @@ const searchHtml = `
       <span>Rating : 7.80</span>
     </li>
     <li>
-      <a href="/anime/baz-qux/">Baz Qux</a>
-      <span>Status : Completed</span>
-      <span>Rating : 8.20</span>
+      <img src="/baz.jpg" />
+      <h2><a href="/anime/baz-qux/">Baz Qux</a></h2>
+      <div class="set"><b>Genres</b> : <a href="/genres/action/">Action</a>, <a href="/genres/comedy/">Comedy</a></div>
+      <div class="set"><b>Status</b> : Completed</div>
+      <div class="set"><b>Rating</b> : 8.20</div>
     </li>
     <li><a href="/genre/action/">Action</a></li>
   </ul>
@@ -120,23 +122,18 @@ describe("parsers", () => {
     ]);
   });
 
-  it("parses search results", () => {
+  it("parses anime-only search results", () => {
     expect(parseSearch(searchHtml)).toEqual([
-      {
-        title: "Foo Bar Episode 12 Subtitle Indonesia",
-        slug: "foo-bar-episode-12-sub-indo",
-        url: "https://otakudesu.blog/episode/foo-bar-episode-12-sub-indo/",
-        type: "episode",
-        episode: 12,
-        status: "Ongoing",
-        rating: "7.80",
-      },
       {
         title: "Baz Qux",
         slug: "baz-qux",
         url: "https://otakudesu.blog/anime/baz-qux/",
         type: "anime",
-        episode: null,
+        image_url: "https://otakudesu.blog/baz.jpg",
+        genres: [
+          { title: "Action", slug: "action", url: "https://otakudesu.blog/genres/action/" },
+          { title: "Comedy", slug: "comedy", url: "https://otakudesu.blog/genres/comedy/" },
+        ],
         status: "Completed",
         rating: "8.20",
       },

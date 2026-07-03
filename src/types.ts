@@ -26,8 +26,9 @@ export interface SearchResult {
   title: string;
   slug: string;
   url: string;
-  type: "anime" | "episode" | "unknown";
-  episode: number | null;
+  type: "anime";
+  image_url: string | null;
+  genres: LinkItem[];
   status: string | null;
   rating: string | null;
 }
