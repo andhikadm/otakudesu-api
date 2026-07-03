@@ -622,4 +622,5 @@ tests/
 ```
 
 ## Disclaimer
-Proyek ini dibuat murni untuk tujuan pembelajaran, riset, dan edukasi pengembangan scraper. Segala materi, gambar, dan konten video yang di-scrape adalah hak cipta dari masing-masing pemilik konten di website otakudesu.blog. Penulis library ini tidak bertanggung jawab atas penyalahgunaan atau pelanggaran hak cipta yang ditimbulkan dari penggunaan pustaka ini.
+
+Repository ini disediakan semata-mata untuk tujuan edukasi dan penelitian. Proyek ini bertujuan untuk menunjukkan bagaimana data publik dari situs pihak ketiga dapat diakses, diproses, dan disajikan kembali melalui API yang terstruktur. Repository ini tidak menyimpan konten berhak cipta, tidak mendorong pelanggaran terhadap ketentuan layanan situs sumber, dan tidak boleh digunakan untuk kegiatan yang melanggar hukum, kebijakan, atau hak pengguna lain. Pengguna bertanggung jawab penuh atas pemanfaatan proyek ini sesuai dengan peraturan dan ketentuan yang berlaku.
