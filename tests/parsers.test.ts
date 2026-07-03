@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseHome } from "../src/scrapers/home.js";
 import { parseAnimeList, parseGenres, parseSchedule } from "../src/scrapers/list.js";
+import { parseSearch } from "../src/scrapers/search.js";
 
 const homeHtml = `
   <html>
@@ -53,6 +54,23 @@ const scheduleHtml = `
   <ul><li><a href="/anime/baz-qux/">Baz Qux</a></li></ul>
 `;
 
+const searchHtml = `
+  <h1>Hasil Pencarian</h1>
+  <ul>
+    <li>
+      <a href="/episode/foo-bar-episode-12-sub-indo/">Foo Bar Episode 12 Subtitle Indonesia</a>
+      <span>Status : Ongoing</span>
+      <span>Rating : 7.80</span>
+    </li>
+    <li>
+      <a href="/anime/baz-qux/">Baz Qux</a>
+      <span>Status : Completed</span>
+      <span>Rating : 8.20</span>
+    </li>
+    <li><a href="/genre/action/">Action</a></li>
+  </ul>
+`;
+
 describe("parsers", () => {
   it("parses homepage ongoing and completed sections", () => {
     const data = parseHome(homeHtml);
@@ -98,6 +116,29 @@ describe("parsers", () => {
       {
         day: "Jumat",
         anime: [{ title: "Baz Qux", slug: "baz-qux", url: "https://otakudesu.blog/anime/baz-qux/" }],
+      },
+    ]);
+  });
+
+  it("parses search results", () => {
+    expect(parseSearch(searchHtml)).toEqual([
+      {
+        title: "Foo Bar Episode 12 Subtitle Indonesia",
+        slug: "foo-bar-episode-12-sub-indo",
+        url: "https://otakudesu.blog/episode/foo-bar-episode-12-sub-indo/",
+        type: "episode",
+        episode: 12,
+        status: "Ongoing",
+        rating: "7.80",
+      },
+      {
+        title: "Baz Qux",
+        slug: "baz-qux",
+        url: "https://otakudesu.blog/anime/baz-qux/",
+        type: "anime",
+        episode: null,
+        status: "Completed",
+        rating: "8.20",
       },
     ]);
   });
