@@ -622,5 +622,4 @@ tests/
 ```
 
 ## Disclaimer
-
-API ini adalah wrapper read-only untuk mengambil data dari halaman publik. Struktur HTML situs target dapat berubah kapan saja; jika itu terjadi, parser mungkin perlu disesuaikan.
+Proyek ini dibuat murni untuk tujuan pembelajaran, riset, dan edukasi pengembangan scraper. Segala materi, gambar, dan konten video yang di-scrape adalah hak cipta dari masing-masing pemilik konten di website otakudesu.blog. Penulis library ini tidak bertanggung jawab atas penyalahgunaan atau pelanggaran hak cipta yang ditimbulkan dari penggunaan pustaka ini.
