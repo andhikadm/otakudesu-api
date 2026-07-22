@@ -1,8 +1,9 @@
 import * as cheerio from "cheerio";
-type CheerioSelection = ReturnType<cheerio.CheerioAPI>;
 import type { AnimeCard } from "../types.js";
 import { cleanText, firstMatch } from "../lib/text.js";
 import { absoluteUrl, slugFromUrl } from "../lib/url.js";
+
+type CheerioSelection = ReturnType<cheerio.CheerioAPI>;
 
 const CARD_SELECTORS = ".venz ul li, .venser ul li, .detpost, article, .listupd .bs";
 

@@ -5,7 +5,7 @@ Read-only API wrapper untuk `https://otakudesu.blog/`. API ini mengambil data da
 ## Fitur
 
 - Latest anime dari homepage.
-- Search anime/episode.
+- Search anime (series only, bukan episode).
 - Ongoing anime dengan pagination.
 - Completed anime dengan pagination.
 - Anime list.
@@ -15,6 +15,7 @@ Read-only API wrapper untuk `https://otakudesu.blog/`. API ini mengambil data da
 - Detail episode termasuk stream iframe, mirror, dan link download.
 - Detail batch download.
 - Complete downloads untuk semua episode dan batch.
+- In-memory cache, rate limiting, CORS headers, dan health check.
 
 ## Requirements
 
@@ -52,9 +53,13 @@ http://localhost:3000
 
 | Variable | Default | Deskripsi |
 | --- | --- | --- |
-| `PORT` | `3000` | Port server API. |
+| `PORT` | `3000` | Port server API (`1-65535`). |
 | `OTAKUDESU_BASE_URL` | `https://otakudesu.blog` | Base URL target Otakudesu. |
 | `REQUEST_TIMEOUT_MS` | `15000` | Timeout request ke situs target dalam milidetik. |
+| `CACHE_TTL_MS` | `300000` | TTL cache HTML in-memory (`0` = disable). |
+| `RATE_LIMIT_WINDOW_MS` | `60000` | Jendela rate limit per IP. |
+| `RATE_LIMIT_MAX` | `60` | Maks request per IP dalam satu jendela. |
+| `CORS_ORIGIN` | `*` | Nilai header `Access-Control-Allow-Origin`. |
 
 Contoh:
 
@@ -112,6 +117,33 @@ Contoh:
 
 ```bash
 curl http://localhost:3000/
+```
+
+---
+
+### Health
+
+```http
+GET /health
+```
+
+Health check ringan tanpa scrape upstream.
+
+Contoh:
+
+```bash
+curl http://localhost:3000/health
+```
+
+Response:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "status": "up"
+  }
+}
 ```
 
 ---
@@ -600,13 +632,20 @@ npm run build
 
 ```text
 src/
+  app.ts
   config.ts
   server.ts
   types.ts
   lib/
+    cache.ts
     http.ts
+    logger.ts
     text.ts
     url.ts
+  middleware/
+    rateLimit.ts
+    requestLog.ts
+    security.ts
   routes/
     index.ts
   scrapers/
@@ -616,8 +655,10 @@ src/
     list.ts
     search.ts
 tests/
+  cache.test.ts
   detail.test.ts
   parsers.test.ts
+  routes.test.ts
   url.test.ts
 ```
 

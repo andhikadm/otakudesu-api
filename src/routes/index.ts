@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { fetchHtml, FetchHtmlError } from "../lib/http.js";
+import { logger } from "../lib/logger.js";
 import { pagedPath } from "../lib/url.js";
 import { parseBatchDetail, parseCompleteDownloads, parseAnimeDetail, parseEpisodeDetail } from "../scrapers/detail.js";
 import { parseHome } from "../scrapers/home.js";
@@ -9,6 +10,7 @@ import { parseSearch } from "../scrapers/search.js";
 export const router = Router();
 
 const endpoints = [
+  "GET /health",
   "GET /api/latest",
   "GET /api/search?q=keyword",
   "GET /api/anime/:slug",
@@ -31,6 +33,10 @@ router.get("/", (_request, response) => {
       endpoints,
     },
   });
+});
+
+router.get("/health", (_request, response) => {
+  response.json({ ok: true, data: { status: "up" } });
 });
 
 router.get("/api/latest", asyncHandler(async (_request, response) => {
@@ -132,11 +138,34 @@ router.use((_request, response) => {
 function asyncHandler(handler: (request: Request, response: Response) => Promise<void>) {
   return (request: Request, response: Response) => {
     handler(request, response).catch((error: unknown) => {
-      const status = error instanceof FetchHtmlError && error.status ? error.status : 500;
-      const message = error instanceof Error ? error.message : "Unexpected server error";
-      response.status(status).json({ ok: false, error: message });
+      const mapped = mapError(error);
+
+      logger.error("request failed", {
+        method: request.method,
+        path: request.originalUrl,
+        status: mapped.status,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+
+      response.status(mapped.status).json({ ok: false, error: mapped.message });
     });
   };
+}
+
+function mapError(error: unknown): { status: number; message: string } {
+  if (error instanceof FetchHtmlError) {
+    if (error.status === 404) {
+      return { status: 404, message: "Resource not found" };
+    }
+
+    if (error.status && error.status >= 400 && error.status < 500) {
+      return { status: 502, message: "Upstream request rejected" };
+    }
+
+    return { status: 502, message: "Upstream unavailable" };
+  }
+
+  return { status: 500, message: "Unexpected server error" };
 }
 
 function pageFromQuery(request: Request): number {
