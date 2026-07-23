@@ -69,4 +69,36 @@ describe("routes", () => {
     expect(result.headers.get("access-control-allow-origin")).toBe("*");
     expect(result.headers.get("x-powered-by")).toBeNull();
   });
+
+  it("rejects missing search query", async () => {
+    const result = await request("/api/search");
+
+    expect(result.status).toBe(400);
+    expect(result.body).toEqual({ ok: false, error: "Query parameter q is required" });
+  });
+
+  it("rejects search query that exceeds max length", async () => {
+    const query = "a".repeat(101);
+    const result = await request(`/api/search?q=${query}`);
+
+    expect(result.status).toBe(400);
+    expect(result.body).toEqual({
+      ok: false,
+      error: "Query parameter q must be at most 100 characters",
+    });
+  });
+
+  it("rejects invalid page parameter", async () => {
+    const result = await request("/api/ongoing?page=abc");
+
+    expect(result.status).toBe(400);
+    expect(result.body).toEqual({ ok: false, error: "Invalid page parameter" });
+  });
+
+  it("rejects non-positive page parameter", async () => {
+    const result = await request("/api/completed?page=0");
+
+    expect(result.status).toBe(400);
+    expect(result.body).toEqual({ ok: false, error: "Invalid page parameter" });
+  });
 });

@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from "express";
+import { SEARCH_QUERY_MAX_LENGTH } from "../config.js";
 import { fetchHtml, FetchHtmlError } from "../lib/http.js";
 import { logger } from "../lib/logger.js";
 import { pagedPath } from "../lib/url.js";
@@ -45,10 +46,9 @@ router.get("/api/latest", asyncHandler(async (_request, response) => {
 }));
 
 router.get("/api/search", asyncHandler(async (request, response) => {
-  const query = searchQueryFromRequest(request);
+  const query = searchQueryFromRequest(request, response);
 
-  if (!query) {
-    response.status(400).json({ ok: false, error: "Query parameter q is required" });
+  if (query === null) {
     return;
   }
 
@@ -105,13 +105,23 @@ router.get("/api/complete-downloads/:slug", asyncHandler(async (request, respons
 }));
 
 router.get("/api/ongoing", asyncHandler(async (request, response) => {
-  const page = pageFromQuery(request);
+  const page = pageFromQuery(request, response);
+
+  if (page === null) {
+    return;
+  }
+
   const html = await fetchHtml(pagedPath("/ongoing-anime/", page));
   response.json({ ok: true, data: parseListPage(html), page });
 }));
 
 router.get("/api/completed", asyncHandler(async (request, response) => {
-  const page = pageFromQuery(request);
+  const page = pageFromQuery(request, response);
+
+  if (page === null) {
+    return;
+  }
+
   const html = await fetchHtml(pagedPath("/complete-anime/", page));
   response.json({ ok: true, data: parseListPage(html), page });
 }));
@@ -168,19 +178,52 @@ function mapError(error: unknown): { status: number; message: string } {
   return { status: 500, message: "Unexpected server error" };
 }
 
-function pageFromQuery(request: Request): number {
-  const value = Number(request.query.page ?? 1);
-  return Number.isInteger(value) && value > 0 ? value : 1;
+function pageFromQuery(request: Request, response: Response): number | null {
+  const raw = request.query.page;
+
+  if (raw === undefined) {
+    return 1;
+  }
+
+  if (typeof raw !== "string" || !/^\d+$/.test(raw)) {
+    response.status(400).json({ ok: false, error: "Invalid page parameter" });
+    return null;
+  }
+
+  const value = Number(raw);
+
+  if (!Number.isInteger(value) || value < 1) {
+    response.status(400).json({ ok: false, error: "Invalid page parameter" });
+    return null;
+  }
+
+  return value;
 }
 
-function searchQueryFromRequest(request: Request): string {
+function searchQueryFromRequest(request: Request, response: Response): string | null {
   const value = request.query.q;
 
   if (typeof value !== "string") {
-    return "";
+    response.status(400).json({ ok: false, error: "Query parameter q is required" });
+    return null;
   }
 
-  return value.trim();
+  const query = value.trim();
+
+  if (!query) {
+    response.status(400).json({ ok: false, error: "Query parameter q is required" });
+    return null;
+  }
+
+  if (query.length > SEARCH_QUERY_MAX_LENGTH) {
+    response.status(400).json({
+      ok: false,
+      error: `Query parameter q must be at most ${SEARCH_QUERY_MAX_LENGTH} characters`,
+    });
+    return null;
+  }
+
+  return query;
 }
 
 function slugFromRequest(request: Request, response: Response): string {

@@ -1,4 +1,4 @@
-import { CACHE_TTL_MS, REQUEST_TIMEOUT_MS } from "../config.js";
+import { CACHE_MAX_ENTRIES, CACHE_TTL_MS, REQUEST_TIMEOUT_MS } from "../config.js";
 import { TtlCache } from "./cache.js";
 import { absoluteUrl } from "./url.js";
 
@@ -12,7 +12,7 @@ export class FetchHtmlError extends Error {
   }
 }
 
-const htmlCache = new TtlCache<string>(CACHE_TTL_MS);
+const htmlCache = new TtlCache<string>(CACHE_TTL_MS, CACHE_MAX_ENTRIES);
 const inFlight = new Map<string, Promise<string>>();
 
 export async function fetchHtml(pathOrUrl: string): Promise<string> {

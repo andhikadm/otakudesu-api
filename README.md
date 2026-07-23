@@ -54,12 +54,14 @@ http://localhost:3000
 | Variable | Default | Deskripsi |
 | --- | --- | --- |
 | `PORT` | `3000` | Port server API (`1-65535`). |
-| `OTAKUDESU_BASE_URL` | `https://otakudesu.blog` | Base URL target Otakudesu. |
+| `OTAKUDESU_BASE_URL` | `https://otakudesu.blog` | Base URL target Otakudesu (harus `https` + public host). |
 | `REQUEST_TIMEOUT_MS` | `15000` | Timeout request ke situs target dalam milidetik. |
 | `CACHE_TTL_MS` | `300000` | TTL cache HTML in-memory (`0` = disable). |
+| `CACHE_MAX_ENTRIES` | `500` | Maks entri cache HTML (LRU eviction). |
 | `RATE_LIMIT_WINDOW_MS` | `60000` | Jendela rate limit per IP. |
 | `RATE_LIMIT_MAX` | `60` | Maks request per IP dalam satu jendela. |
 | `CORS_ORIGIN` | `*` | Nilai header `Access-Control-Allow-Origin`. |
+| `SEARCH_QUERY_MAX_LENGTH` | `100` | Maks panjang query `q` untuk search. |
 
 Contoh:
 
@@ -202,7 +204,7 @@ Query params:
 
 | Param | Wajib | Deskripsi |
 | --- | --- | --- |
-| `q` | Ya | Keyword pencarian. |
+| `q` | Ya | Keyword pencarian (maks `SEARCH_QUERY_MAX_LENGTH` karakter, default 100). |
 
 Contoh:
 
@@ -239,7 +241,7 @@ Query params:
 
 | Param | Default | Deskripsi |
 | --- | --- | --- |
-| `page` | `1` | Nomor halaman. |
+| `page` | `1` | Nomor halaman (integer positif; invalid → `400`). |
 
 Contoh:
 
@@ -263,7 +265,7 @@ Query params:
 
 | Param | Default | Deskripsi |
 | --- | --- | --- |
-| `page` | `1` | Nomor halaman. |
+| `page` | `1` | Nomor halaman (integer positif; invalid → `400`). |
 
 Contoh:
 
@@ -638,6 +640,7 @@ src/
   types.ts
   lib/
     cache.ts
+    env.ts
     http.ts
     logger.ts
     text.ts
@@ -656,6 +659,7 @@ src/
     search.ts
 tests/
   cache.test.ts
+  config.test.ts
   detail.test.ts
   parsers.test.ts
   routes.test.ts

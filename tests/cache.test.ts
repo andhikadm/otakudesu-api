@@ -26,4 +26,30 @@ describe("TtlCache", () => {
     cache.set("a", "value");
     expect(cache.get("a")).toBeUndefined();
   });
+
+  it("evicts least-recently-used entries when max size is exceeded", () => {
+    const cache = new TtlCache<string>(60_000, 2);
+
+    cache.set("a", "1");
+    cache.set("b", "2");
+    cache.get("a"); // touch a so b becomes the oldest
+    cache.set("c", "3");
+
+    expect(cache.get("a")).toBe("1");
+    expect(cache.get("b")).toBeUndefined();
+    expect(cache.get("c")).toBe("3");
+    expect(cache.size).toBe(2);
+  });
+
+  it("refreshes existing keys without growing past max size", () => {
+    const cache = new TtlCache<string>(60_000, 2);
+
+    cache.set("a", "1");
+    cache.set("b", "2");
+    cache.set("a", "1-updated");
+
+    expect(cache.size).toBe(2);
+    expect(cache.get("a")).toBe("1-updated");
+    expect(cache.get("b")).toBe("2");
+  });
 });
